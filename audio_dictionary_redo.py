@@ -169,7 +169,7 @@ def search():
 
 # function to read text
 # function to turn textual data into audio data
-engine = pyttsx3.init()
+
 
 def speak():
     
@@ -183,7 +183,7 @@ def speak():
                 return
 
             # initializing the pyttsx3 object
-            
+            engine = pyttsx3.init()
 
 
             # gets the speaking rate
@@ -221,8 +221,12 @@ def speak():
 
 
             # this function processes the voice 
-            
-            engine.runAndWait()
+            if engine._inLoop:
+                 engine.endLoop()
+
+            # this function processes the voice 
+            else:
+                engine.runAndWait()
         
     # Create a new thread for speech synthesis
     speech_thread = threading.Thread(target=perform_speech_synthesis)
@@ -239,14 +243,7 @@ preview.pack(pady=10)
 
 
     
-def end():
-    print("engine stops")
-    engine.stop()
-    # print('busy', engine.isBusy)
 
-def on_stop_button_click():
-    # Call the end() function when the stop button is clicked
-    end()
 
 
 # creating search button
@@ -259,8 +256,6 @@ search_button=tk.Button(tab1, bg="#f5f3ed",width=50, height=30, bd=5, image=sear
 meaning_image=tk.PhotoImage(file="images/meaning_image.png")
 meaning_label=tk.Label(tab1,image=meaning_image).pack(side="top")
 
-# creating search button
-stop_button=tk.Button(tab1, bg="#fbf4f4", fg="red",text="Stop", height=1, bd=2,command=on_stop_button_click).pack(fill="x",side="top")
 
 
 # creating read button
