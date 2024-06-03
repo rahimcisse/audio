@@ -221,10 +221,8 @@ def speak():
 
 
             # this function processes the voice 
-            if engine.isBusy:
-                engine.runAndWait()
-            else:
-                engine.stop() 
+            
+            engine.runAndWait()
         
     # Create a new thread for speech synthesis
     speech_thread = threading.Thread(target=perform_speech_synthesis)
@@ -284,7 +282,7 @@ meaning_box.pack(side="top", expand=1, fill="x")
 ################################################################################################################################################
 
 # choosing input label colour
-entry_colour=tk.Label(tab2,text="Choose entry colour",justify="left", font=("Gabriola", 35)).pack(side="top")
+entry_colour=tk.Label(tab2,text="Choose theme",justify="left", font=("Gabriola", 35)).pack(side="top")
 
 selected_meaning_colour=tk.IntVar()
 default_mode=tk.Radiobutton(tab2,text="default", variable=selected_meaning_colour,value=0, font=10).pack (side="top")
@@ -295,61 +293,25 @@ light_mode=tk.Radiobutton(tab2,text="light", variable=selected_meaning_colour,va
 
 
 # function to change colour of entry
-def entry_theme():
+def theme():
         if askyesno(title="Apply", message="Are you sure you want to apply this change?"):
             # collecting values from checkboxes
             if selected_meaning_colour.get()==1:
                     entry.config(bg="black", fg="white")
+                    meaning_box.config(bg="black", fg="white")
 
 
             elif selected_meaning_colour.get()==2:
                     entry.config(bg="white", fg="black")
-            
-            else:
-                entry.config(bg="lightgrey", fg="black")
-
-
-# button for applying entry change
-tk.Button(tab2, text="Apply",command=entry_theme, bd=5,bg="lightblue").pack(side="top")
-
-
-
-
-
-# setting meaning_box color
-input_label=tk.Label(tab2,text="Choose meaning box color",justify="left", font=("Gabriola", 35)).pack(side="top")
-
-
-
-selected_entry_colour=tk.IntVar()
-default_mode=tk.Radiobutton(tab2,text="default", variable=selected_entry_colour,value=0 ,font=10).pack (side="top")
-
-dark_mode1=tk.Radiobutton(tab2,text="dark", variable=selected_entry_colour,value=1,font=10).pack (side="top")
-
-light_mode1=tk.Radiobutton(tab2,text="light", variable=selected_entry_colour,value=2,font=10).pack (side="top")
-
-
-
-
-# function for choosing meaningbox colour
-def meaning_theme():
-        if askyesno(title="Apply", message="Are you sure you want to apply this change?"):
-            # collecting values from checkboxes
-            if selected_entry_colour.get()==1:
-                    meaning_box.config(bg="black", fg="white")
-
-
-            elif selected_entry_colour.get()==2:
                     meaning_box.config(bg="white", fg="black")
             
             else:
+                entry.config(bg="lightgrey", fg="black")
                 meaning_box.config(bg="lightgrey", fg="black")
 
 
-
-
-# button for changing color of meaningbox
-tk.Button(tab2, text="Apply",command=meaning_theme, bd=5,bg="lightblue").pack(side="top")
+# button for applying entry change
+tk.Button(tab2, text="Apply",command=theme, bd=5,bg="lightblue").pack(side="top")
 
 
 
