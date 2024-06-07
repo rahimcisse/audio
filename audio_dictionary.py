@@ -20,8 +20,7 @@ import pyttsx3
 
 from tkinter.scrolledtext import ScrolledText
 import threading
-import requests
-from urllib3.exceptions import NewConnectionError, MaxRetryError
+
 full_history = []
 history=[]
 # creating window
@@ -63,8 +62,8 @@ window.iconphoto(True,icon)
 # TAB1
 ##############################################################################################################################
 # top label image 
-image=tk.PhotoImage(file="images/audio.png")
-label=tk.Label(tab1,image=image).pack(side="top",fill="x")
+audio_image=tk.PhotoImage(file="images/audio.png")
+audio=tk.Label(tab1,image=audio_image).pack(side="top",fill="x")
 
 # creating input label
 input_label=tk.Label(tab1,text="Input Word:",justify="left", font=("Gabriola", 25)).pack(side="top")
@@ -151,11 +150,13 @@ def search():
 
                 if correct_meaning:
                     askokcancel(title='Error', message=f'"{word}" was not found in the dictionary!. I think you meant "{b}"')
+                    loading.config(text="")
                     return
                 
 
                 # if there isnt anyword ahow error
                 else:
+                    loading.config(text="")
                     askokcancel(title='Error', message=f'"{word}" was not found in the dictionary!.')
                     return
                            
@@ -177,8 +178,7 @@ def search():
             showerror(title='Error', message=f'An error occurred: {str(e)}')
             return
     
-        except (requests.exceptions.ConnectionError, NewConnectionError, MaxRetryError):
-                        pass 
+
     
     search_thread = threading.Thread(target=search_synthesis)
     search_thread.start()
@@ -239,6 +239,8 @@ def speak():
 
 
             # this function processes the voice 
+
+                
             if engine._inLoop:
                  engine.endLoop()
                  loading.config(text="")
@@ -328,7 +330,7 @@ def theme():
 
 
 # button for applying entry change
-tk.Button(tab2, text="Apply",command=theme, bd=5,bg="lightblue").pack(side="top")
+apply_button=tk.Button(tab2, text="Apply",command=theme, bd=5,bg="lightblue").pack(side="top")
 
 
 
@@ -345,13 +347,11 @@ female_voice.pack (side="top")
 
 selected_voice.set(1)
 
-####################################################################################################################################
 
 
 
 
 # TAB3
-############################################################################################################################################
 recent_image=tk.PhotoImage(file="images/recent.png")
 recent_label=tk.Label(tab3,image=recent_image,bd=40).pack(side="top",fill="x")
 
@@ -415,7 +415,6 @@ clear=tk.Button(tab3,width=10, height=1 ,bd=5,text="Clear History" ,command=clea
 clear.pack(side="right")
 show_button=tk.Button(tab3,width=15,bg="lightblue", height=1 ,bd=5,text="View Full History", command=show_full_history)
 show_button.pack(side="right")
-#####################################################################################################################################
 
 
 
