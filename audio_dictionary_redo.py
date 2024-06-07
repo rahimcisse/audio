@@ -20,7 +20,8 @@ import pyttsx3
 
 from tkinter.scrolledtext import ScrolledText
 import threading
-
+import requests
+from urllib3.exceptions import NewConnectionError, MaxRetryError
 full_history = []
 history=[]
 # creating window
@@ -30,12 +31,18 @@ window.title("Audio Dictionnary With Spell Checks")
 window.config( bg="grey")
 window.geometry(GEOMETRY)
 
+close=False
+
 
 # close Option
 def on_closing():  
+        global close
+        close=True
         if messagebox.askyesno(title="Quit", message="ARE YOU SURE YOU WANT TO QUIT?"):
+            
             window.destroy()
-            SystemExit()
+
+            
 window.protocol("WM_DELETE_WINDOW", on_closing)
 
 # creating two tabs 
@@ -62,111 +69,120 @@ label=tk.Label(tab1,image=image).pack(side="top",fill="x")
 # creating input label
 input_label=tk.Label(tab1,text="Input Word:",justify="left", font=("Gabriola", 25)).pack(side="top")
 
+loading=tk.Label(tab1,text="",justify="left", font=("Gabriola", 10))
+loading.pack(side="top")
 
 # creating word entry box
 entry = tk.Entry(tab1, bg="lightgrey", width=45, font=("Cambria", 15), bd=5)
 entry.pack(side="top", expand=1, fill="x")
 
+entry.bind('<Return>', lambda event: search())
 # function for searching the word meaning
 
 def search():
-    
-    
-    # getting the word from the entry using the get(), changing it to lowercase and also stripping it of any spaces
-    word = entry.get().lower().strip().replace(' ', '')
+    def search_synthesis():
+        loading.config(text="Loading....↻")
+        # getting the word from the entry using the get(), changing it to lowercase and also stripping it of any spaces
+        word = entry.get().lower().strip().replace(' ', '')
 
-    
-
-    b = TextBlob(word).correct() 
-
-    # checking if the word variable is empty
-    if word == '' :
-        # message box to display if the word variable is empty
-        showerror(title='Error', message='Please enter the word you want to search for!!')
-        return  # Exit the function if the word is empty
-    
-    # checking if the word variable has numbers and symbols
-    if word.isalpha()==False :
-        # message box to display if the word variable has symbols and digits
-        showerror(title='Error', message=f'Sorry, cannot search for the meaning of "{word}", Please enter a valid word.')
-        return  # Exit the function if the word is empty
-
-    try:
-        word = entry.get().lower().strip()
-        meaning_box.config(state="normal")
-        # creating a dictionary object
-        dictionary = PyDictionary()
-
-        # passing a word to the dictionary object
-        meanings = dictionary.meaning(word)
-
-        # previewing word
-       
-        b = TextBlob(word).correct() #Getting the object for the word
-        preview.insert(1.0,b)
-        preview.config(state="normal")
-        preview.delete(1.0,tk.END)
-        preview.insert(1.0,word)
-        preview.config(state="disabled")
         
-        if meanings:
-            history.append(word)
-            recent_box.config(state="normal")
-            recent_box.insert(1.0,f"{word}\n")
-            recent_box.config(state="disabled")
-    
-            file = open("documents/word.txt", "a")
-            file.write(f"{word}\n")
-            file.close()
-            
-            # Clearing the content in the Text widget
-            meaning_box.delete('1.0', tk.END)
-            
-            # Inserting content (meanings) in the Text widget
-            for pos, meaning in enumerate(meanings, start=1):
-                meaning_box.insert(tk.END, f"{pos}. {meaning.capitalize()}:\n")
-                meaning_box.insert(tk.END, f"{', '.join(meanings[meaning])}\n\n")
-            
-            # enabling the audio button to normal state
-            read_button.config(state=tk.NORMAL)
-            meaning_box.config(state="disabled")
-            return
-        else:
-            # checking for a possible word and returning it to the user
-            b = TextBlob(word).correct()
-            correct_meaning=PyDictionary.meaning(b) 
-            meaning_box.config(state="disabled")
 
+        b = TextBlob(word).correct() 
 
-            if correct_meaning:
-                askokcancel(title='Error', message=f'"{word}" was not found in the dictionary!. I think you meant "{b}"')
+        # checking if the word variable is empty
+        if word == '' :
+            # message box to display if the word variable is empty
+            showerror(title='Error', message='Please enter the word you want to search for!!')
+            return  # Exit the function if the word is empty
+        
+        # checking if the word variable has numbers and symbols
+        if word.isalpha()==False :
+            # message box to display if the word variable has symbols and digits
+            showerror(title='Error', message=f'Sorry, cannot search for the meaning of "{word}", Please enter a valid word.')
+            return  # Exit the function if the word is empty
+
+        try:
+            word = entry.get().lower().strip()
+            meaning_box.config(state="normal")
+            # creating a dictionary object
+            dictionary = PyDictionary()
+
+            # passing a word to the dictionary object
+            meanings = dictionary.meaning(word)
+
+            # previewing word
+        
+            b = TextBlob(word).correct() #Getting the object for the word
+            preview.insert(1.0,b)
+            preview.config(state="normal")
+            preview.delete(1.0,tk.END)
+            preview.insert(1.0,word)
+            preview.config(state="disabled")
+            
+            if meanings:
+                history.append(word)
+                recent_box.config(state="normal")
+                recent_box.insert(1.0,f"{word}\n")
+                recent_box.config(state="disabled")
+        
+                file = open("documents/word.txt", "a")
+                file.write(f"{word}\n")
+                file.close()
+                
+                # Clearing the content in the Text widget
+                meaning_box.delete('1.0', tk.END)
+                
+                # Inserting content (meanings) in the Text widget
+                for pos, meaning in enumerate(meanings, start=1):
+                    meaning_box.insert(tk.END, f"{pos}. {meaning.capitalize()}:\n")
+                    meaning_box.insert(tk.END, f"{', '.join(meanings[meaning])}\n\n")
+                
+                # enabling the audio button to normal state
+                read_button.config(state=tk.NORMAL)
+                meaning_box.config(state="disabled")
+                loading.config(text="") 
                 return
-            
-
-            # if there isnt anyword ahow error
             else:
-                askokcancel(title='Error', message=f'"{word}" was not found in the dictionary!.')
-                return
-                       
+                # checking for a possible word and returning it to the user
+                b = TextBlob(word).correct()
+                correct_meaning=PyDictionary.meaning(b) 
+                meaning_box.config(state="disabled")
 
 
-            
-    # catching all errors
-    except KeyError:
-        showerror(title='Error', message=f'"{word}" was not found in the dictionary!')
-        return
+                if correct_meaning:
+                    askokcancel(title='Error', message=f'"{word}" was not found in the dictionary!. I think you meant "{b}"')
+                    return
+                
+
+                # if there isnt anyword ahow error
+                else:
+                    askokcancel(title='Error', message=f'"{word}" was not found in the dictionary!.')
+                    return
+                           
+
+
+                
+        # catching all errors
+        except KeyError:
+            showerror(title='Error', message=f'"{word}" was not found in the dictionary!')
+            return
+        
+        # no internet connectivity
+        except ConnectionError:
+            showerror(title='Error', message='There is a problem with your internet connection! Please check it and then try again.')
+            return
+        
+        # catching the rest of the exceptions
+        except Exception as e:
+            showerror(title='Error', message=f'An error occurred: {str(e)}')
+            return
     
-    # no internet connectivity
-    except ConnectionError:
-        showerror(title='Error', message='There is a problem with your internet connection! Please check it.')
-        return
+        except (requests.exceptions.ConnectionError, NewConnectionError, MaxRetryError):
+                        pass 
     
-    # catching the rest of the exceptions
-    except Exception as e:
-        showerror(title='Error', message=f'An error occurred: {str(e)}')
-        return
-
-
+    search_thread = threading.Thread(target=search_synthesis)
+    search_thread.start()
+    
 # function to read text
 # function to turn textual data into audio data
 
@@ -217,16 +233,21 @@ def speak():
                         for meaning in meaning_list:
                             engine.say(meaning)
             else:
+                loading.config(text="Reading🔊")
                 engine.say("No meanings found for the word.")
+                loading.config(text="")
 
 
             # this function processes the voice 
             if engine._inLoop:
                  engine.endLoop()
+                 loading.config(text="")
 
             # this function processes the voice 
             else:
+                loading.config(text="Reading🔊")
                 engine.runAndWait()
+                loading.config(text="")
         
     # Create a new thread for speech synthesis
     speech_thread = threading.Thread(target=perform_speech_synthesis)
@@ -289,6 +310,7 @@ light_mode=tk.Radiobutton(tab2,text="light", variable=selected_meaning_colour,va
 
 # function to change colour of entry
 def theme():
+        window.bell()
         if askyesno(title="Apply", message="Are you sure you want to apply this change?"):
             # collecting values from checkboxes
             if selected_meaning_colour.get()==1:
@@ -379,6 +401,7 @@ def show_full_history():
 
 
 def clear_history():
+    window.bell()
     if askyesno(title="Clear History", message=f"Are you sure you want to clear history?\n All data erased will be lost!!"):
         full_history.clear()
         file = open("documents/word.txt", "w")
