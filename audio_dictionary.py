@@ -1,3 +1,4 @@
+# pip install textblob PyDictionary pyttsx3 time threading os
 GEOMETRY= "650x700+400+1"
 
 import tkinter as tk
@@ -19,11 +20,29 @@ from textblob import TextBlob
 import pyttsx3
 
 from tkinter.scrolledtext import ScrolledText
+
 import threading
 
+import time
+import os
+if os.path.isfile("documents/time.txt")==False:
+     file = open("documents/time.txt", 'a') 
+     
+if os.path.isfile("documents/words.txt")==False:
+     file = open("documents/words.txt", 'a') 
+     
 full_history = []
-history=[]
+search_time=[]
+
 # creating window
+with open("documents/words.txt") as file:
+    for line in file:
+        full_history.append(line.strip("\n")) 
+with open("documents/time.txt") as file:
+    for line in file:
+        search_time.append(line.strip("\n")) 
+
+
 
 window=tk.Tk()
 window.title("Audio Dictionnary With Spell Checks")
@@ -54,6 +73,7 @@ parent_tab.add(tab3,text="Recent")
 parent_tab.add(tab2,text="Setings")
 
 parent_tab.pack(expand=1, fill="both")
+
 # setting icon
 icon=tk.PhotoImage(file="images/icon.png")
 window.iconphoto(True,icon)
@@ -78,15 +98,124 @@ entry.pack(side="top", expand=1, fill="x")
 entry.bind('<Return>', lambda event: search())
 # function for searching the word meaning
 
+# open the file in read mode
+
+
+# TAB3
+recent_image=tk.PhotoImage(file="images/recent.png")
+recent_label=tk.Label(tab3,image=recent_image,bd=40).pack(side="top",fill="x")
+
+recent_search=tk.Label(tab3,text="Most Recent Search:",justify="left", font=("Ink Free", 20)).pack(side="top")
+
+recent_box = tk.Text(tab3,state="disabled", bg="lightgrey", width=45, font=("Candara", 25), height=8, bd=5, blockcursor=True)
+recent_box.pack(side="top", expand=1, fill="x")
+
+
+def switch_tab(notebook, tab_index):
+    parent_tab.select(tab_index)
+
+def research1():
+    entry.delete(0,tk.END)
+    entry.insert(tk.END,full_history[0])
+    switch_tab(parent_tab,0)
+    search()
+ 
+def research2():
+    entry.delete(0,tk.END)
+    entry.insert(tk.END,full_history[1])
+    switch_tab(parent_tab,0)
+    search()
+
+def research3():
+    entry.delete(0,tk.END)
+    entry.insert(tk.END,full_history[2])
+    switch_tab(parent_tab,0)
+    search()
+
+def research4():
+    entry.delete(0,tk.END)
+    entry.insert(tk.END,full_history[3])
+    switch_tab(parent_tab,0)
+    search()
+
+def research5():
+    entry.delete(0,tk.END)
+    entry.insert(tk.END,full_history[4])
+    switch_tab(parent_tab,0)
+    search()
+
+def research6():
+    entry.delete(0,tk.END)
+    entry.insert(tk.END,full_history[5])
+    switch_tab(parent_tab,0)
+    search()
+
+def research7():
+    entry.delete(0,tk.END)
+    entry.insert(tk.END,full_history[6])
+    switch_tab(parent_tab,0)
+    search()
+
+def research8():
+    entry.delete(0,tk.END)
+    entry.insert(tk.END,full_history[7])
+    switch_tab(parent_tab,0)
+    search()
+
+first_word=tk.Button(recent_box,text="" ,command=research1,bg="lightgrey", font=("Ariel",15))
+first_word.pack (side="top",fill="x")
+
+second_word=tk.Button(recent_box,text="",command=research2,bg="lightgrey", font=("Ariel",15))
+second_word.pack (side="top",fill="x")
+
+third_word=tk.Button(recent_box,text="",command=research3,bg="lightgrey", font=("Ariel",15))
+third_word.pack (side="top",fill="x")
+fourth_word=tk.Button(recent_box ,text="",command=research4,bg="lightgrey", font=("Ariel",15))
+fourth_word.pack (side="top",fill="x")
+fifth_word=tk.Button(recent_box,text="",command=research5,bg="lightgrey", font=("Ariel",15))
+fifth_word.pack (side="top",fill="x")
+sixth_word=tk.Button(recent_box,text="",command=research6,bg="lightgrey", font=("Ariel",15))
+sixth_word.pack (side="top",fill="x")
+seventh_word=tk.Button(recent_box,text="",command=research7,bg="lightgrey", font=("Ariel",15))
+seventh_word.pack (side="top",fill="x")
+eight_word=tk.Button(recent_box,text="",command=research8,bg="lightgrey", font=("Ariel",15))
+eight_word.pack (side="top",fill="x")
+
+
+def validating():
+    full_history.reverse()
+    search_time.reverse()
+    if 0 < len(full_history) and  0 < len(search_time):
+        first_word.config(text=f"{full_history[0]}          {search_time[0]}")
+    if  1 < len(full_history) and  1 < len(search_time):
+        second_word.config(text=f"{full_history[1]}          {search_time[1]}")
+    if  2 < len(full_history) and 2 < len(search_time):
+        third_word.config(text=f"{full_history[2]}          {search_time[2]}")
+    if  3 < len(full_history) and  3 < len(search_time):
+        fourth_word.config(text=f"{full_history[3]}          {search_time[3]}")
+    if  4 < len(full_history) and  4 < len(search_time):
+        fifth_word.config(text=f"{full_history[4]}          {search_time[4]}")    
+    if  5 < len(full_history) and  5 < len(search_time):
+        sixth_word.config(text=f"{full_history[5]}          {search_time[5]}")  
+    if  6 < len(full_history) and  6 < len(search_time):
+        seventh_word.config(text=f"{full_history[6]}          {search_time[6]}")  
+    if  7 < len(full_history) and  7 < len(search_time):
+        eight_word.config(text=f"{full_history[7]}          {search_time[7]}")  
+    else:
+        return
+  
+validating()
+
 def search():
     def search_synthesis():
+        current_time=time.ctime()
         loading.config(text="Loading....↻")
         # getting the word from the entry using the get(), changing it to lowercase and also stripping it of any spaces
         word = entry.get().lower().strip().replace(' ', '')
 
         
 
-        b = TextBlob(word).correct() 
+        corrected_word = TextBlob(word).correct() 
 
         # checking if the word variable is empty
         if word == '' :
@@ -111,22 +240,24 @@ def search():
 
             # previewing word
         
-            b = TextBlob(word).correct() #Getting the object for the word
-            preview.insert(1.0,b)
+            corrected_word = TextBlob(word).correct() #Getting the object for the word
+            preview.insert(1.0,corrected_word)
             preview.config(state="normal")
             preview.delete(1.0,tk.END)
             preview.insert(1.0,word)
             preview.config(state="disabled")
             
             if meanings:
-                history.append(word)
-                recent_box.config(state="normal")
-                recent_box.insert(1.0,f"{word}\n")
+                full_history.append(word)
+                search_time.append(current_time)
                 recent_box.config(state="disabled")
-        
-                file = open("documents/word.txt", "a")
+                file = open("documents/time.txt", "a")
+                file.write(f"{current_time}\n")
+                file.close()
+                file = open("documents/words.txt", "a")
                 file.write(f"{word}\n")
                 file.close()
+                validating()
                 
                 # Clearing the content in the Text widget
                 meaning_box.delete('1.0', tk.END)
@@ -143,26 +274,37 @@ def search():
                 return
             else:
                 # checking for a possible word and returning it to the user
-                b = TextBlob(word).correct()
-                correct_meaning=PyDictionary.meaning(b) 
+                corrected_word = TextBlob(word).correct()
+                correct_meaning=PyDictionary.meaning(corrected_word) 
                 meaning_box.config(state="disabled")
 
 
                 if correct_meaning:
-                    askokcancel(title='Error', message=f'"{word}" was not found in the dictionary!. I think you meant "{b}"')
-                    loading.config(text="")
+                    if askyesno(title='Error', message=f'"{word}" was not found in the dictionary!. Do you mean "{corrected_word}"?'):  
+                        loading.config(text="")
+                        entry.delete(0,tk.END)
+                        entry.insert(tk.END,corrected_word)
+                        search()
                     return
                 
 
                 # if there isnt anyword ahow error
                 else:
                     loading.config(text="")
+                    if ConnectionError:
+                        showerror(title='Error', message='There is a problem with your internet connection! Please check it and then try again.')
+                        return
+                    
                     askokcancel(title='Error', message=f'"{word}" was not found in the dictionary!.')
                     return
-                           
+                   
+                          
 
 
-                
+        except FileNotFoundError:
+            showerror(title='Error', message=f'Some files were not found!!! Please make sure you have all required files and try again')
+            return
+        
         # catching all errors
         except KeyError:
             showerror(title='Error', message=f'"{word}" was not found in the dictionary!')
@@ -263,8 +405,6 @@ def speak():
 # creating area to preview word
 preview=tk.Text(tab1 , width=10,height=1,bg="#ececec", font=("Times New Roman",20),state="disabled")
 preview.pack(pady=10)
-
-
     
 
 
@@ -300,7 +440,7 @@ meaning_box.pack(side="top", expand=1, fill="x")
 ################################################################################################################################################
 
 # choosing input label colour
-entry_colour=tk.Label(tab2,text="Choose theme",justify="left", font=("Gabriola", 35)).pack(side="top")
+entry_colour=tk.Label(tab2,text="Choose entry and meaning theme",justify="left", font=("Gabriola", 35)).pack(side="top")
 
 selected_meaning_colour=tk.IntVar()
 default_mode=tk.Radiobutton(tab2,text="default", variable=selected_meaning_colour,value=0, font=10).pack (side="top")
@@ -351,15 +491,24 @@ selected_voice.set(1)
 
 
 
-# TAB3
-recent_image=tk.PhotoImage(file="images/recent.png")
-recent_label=tk.Label(tab3,image=recent_image,bd=40).pack(side="top",fill="x")
 
-recent_search=tk.Label(tab3,text="Most Recent Search:",justify="left", font=("Ink Free", 20)).pack(side="top")
+    # read first character
 
-recent_box = tk.Text(tab3,state="disabled", bg="lightgrey", width=45, font=("Candara", 25), height=8, bd=5, blockcursor=True)
-recent_box.pack(side="top", expand=1, fill="x")
+ 
+ 
 
+
+
+ 
+
+
+
+
+
+
+
+# research_button=tk.Button(tab3,width=15,bg="lightblue", height=1 ,bd=5,text="search", command=research)
+# research_button.pack(side="right")
 
 
 
@@ -380,15 +529,27 @@ def show_full_history():
     if is_running == False:
         history_window=tk.Tk()
         history_window.title("History")
-        history_window.geometry("400x500+1+100")
+        history_window.geometry("540x500+1+100")
         history_window.resizable(False,False)
-        full=ScrolledText(history_window,fg="green",state="disabled", background="white", bd=2,font=("Ariel",20),padx=12)
-        full.pack(side="top", fill="x")
+        full=ScrolledText(history_window,fg="black",state="disabled", background="#f2ffff", bd=1,font=("Javanese Text",20),padx=12)
+        full.pack(side="top", fill="both")
 
         full.config(state="normal")
-        with open("documents/word.txt") as file:
-            for line in file:
-                full.insert(1.0, line)      
+        full_history.reverse()
+        search_time.reverse()
+        for line in zip(full_history,search_time):
+            full.insert(1.0, f"{line}\n")
+        full_history.reverse()
+        search_time.reverse()
+
+        
+            
+
+        
+      
+                
+            
+      
         full.config(state="disabled")
         is_running=True
 
@@ -404,17 +565,28 @@ def clear_history():
     window.bell()
     if askyesno(title="Clear History", message=f"Are you sure you want to clear history?\n All data erased will be lost!!"):
         full_history.clear()
-        file = open("documents/word.txt", "w")
+        file = open("documents/words.txt", "w")
         file.__del__()
         file.close()   
-
+        search_time.clear()
+        file = open("documents/time.txt", "w")
+        file.__del__()
+        file.close() 
+        first_word.config(text="")
+        second_word.config(text="")
+        third_word.config(text="")
+        fourth_word.config(text="")
+        fifth_word.config(text="")
+        sixth_word.config(text="")
+        seventh_word.config(text="")
+        eight_word.config(text="")
 
 
 # clear history button
-clear=tk.Button(tab3,width=10, height=1 ,bd=5,text="Clear History" ,command=clear_history)
-clear.pack(side="right")
+clear=tk.Button(tab3,width=10, height=1 ,bd=5,bg="#ff6060",text="Clear History" ,command=clear_history)
+clear.pack(side="left")
 show_button=tk.Button(tab3,width=15,bg="lightblue", height=1 ,bd=5,text="View Full History", command=show_full_history)
-show_button.pack(side="right")
+show_button.pack(side="left")
 
 
 
