@@ -561,6 +561,7 @@ def show_full_history():
 
 
 
+window.tk_focusFollowsMouse()
 def clear_history():
     window.bell()
     if askyesno(title="Clear History", message=f"Are you sure you want to clear history?\n All data erased will be lost!!"):
