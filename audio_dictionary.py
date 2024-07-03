@@ -1,3 +1,4 @@
+import json
 # pip install textblob PyDictionary pyttsx3 time threading os
 GEOMETRY= "650x700+400+1"
 
@@ -10,6 +11,7 @@ from tkinter import messagebox
 
 from tkinter import ttk
 
+from difflib import get_close_matches
 #importing the PyDictionary library
 from PyDictionary import PyDictionary
 
@@ -23,26 +25,55 @@ from tkinter.scrolledtext import ScrolledText
 
 import threading
 
+from PIL import Image, ImageTk, ImageSequence
+
 import time
 import os
-if os.path.isfile("documents/time.txt")==False:
-     file = open("documents/time.txt", 'a') 
+
+
+os.makedirs("documents", exist_ok=True)
+
+if os.path.isfile("documents/data.json")==False:
+     file = open("documents/data.json", 'a') 
      
-if os.path.isfile("documents/words.txt")==False:
-     file = open("documents/words.txt", 'a') 
+
      
-full_history = []
-search_time=[]
+def load_allwords():
+    global all_words
+    try:
+        with open("documents/all_words.json", "r") as json_file:
+            data = json.load(json_file)
+            for item in data:
+                all_words.append(item)
+            
+    except (FileNotFoundError, json.JSONDecodeError):
+        all_words=[]
+
+
+
 
 # creating window
-with open("documents/words.txt") as file:
-    for line in file:
-        full_history.append(line.strip("\n")) 
-with open("documents/time.txt") as file:
-    for line in file:
-        search_time.append(line.strip("\n")) 
+def save_data():
+    data = {"full_history": full_history, "search_time": search_time}
+    with open("documents/data.json", "w") as json_file:
+        json.dump(data, json_file)
 
+def load_data():
+    global full_history, search_time
+    try:
+        with open("documents/data.json", "r") as json_file:
+            data = json.load(json_file)
+            full_history = data["full_history"]
+            search_time = data["search_time"]
+    except (FileNotFoundError, json.JSONDecodeError):
+        full_history = []
+        search_time = []
 
+full_history = []
+search_time=[]
+all_words=[]
+load_allwords()
+load_data()
 
 window=tk.Tk()
 window.title("Audio Dictionnary With Spell Checks")
@@ -88,14 +119,61 @@ audio=tk.Label(tab1,image=audio_image).pack(side="top",fill="x")
 # creating input label
 input_label=tk.Label(tab1,text="Input Word:",justify="left", font=("Gabriola", 25)).pack(side="top")
 
-loading=tk.Label(tab1,text="",justify="left", font=("Gabriola", 10))
-loading.pack(side="top")
+class SpinnerLabel(tk.Label):
+    def __init__(self, master, gif_path, size, *args, **kwargs):
+        tk.Label.__init__(self, master, *args, **kwargs)
+        self.size = size
+        self.frames = [ImageTk.PhotoImage(img.resize(self.size, Image.Resampling.LANCZOS)) 
+                       for img in ImageSequence.Iterator(Image.open(gif_path))]
+        self.index = 0
+        self.update_label()
+
+    def update_label(self):
+        self.config(image=self.frames[self.index])
+        self.index = (self.index + 1) % len(self.frames)
+        self.after(100, self.update_label)  # Adjust the delay as necessary
+
+
+loading=ttk.Label(tab1)
+loading.pack()
+
+# create and pack the spinner but hide it initially
+spinner = SpinnerLabel(loading, "images/loading1.gif", size=(20, 20))
+spinner.pack()
+spinner.pack_forget()
 
 # creating word entry box
-entry = tk.Entry(tab1, bg="lightgrey", width=45, font=("Cambria", 15), bd=5)
+entry = ttk.Combobox(tab1, width=45, font=("Cambria", 15))
 entry.pack(side="top", expand=1, fill="x")
 
-entry.bind('<Return>', lambda event: search())
+# entry.bind('<Return>', lambda event: search())
+
+# import required libraries for the spinner
+
+
+# Define the SpinnerLabel class with resizing functionality
+
+
+
+
+def likely(event):
+    def start(event):
+        word = entry.get().lower().strip()
+        close = get_close_matches(word=word, possibilities=all_words, cutoff=0.6, n=6)
+        entry.config(values=close)
+
+    start_likely = threading.Thread(target=start, args=(event,))
+    start_likely.start()
+
+entry.bind('<KeyRelease>', lambda event: likely(event))
+
+
+
+
+
+
+
+
 # function for searching the word meaning
 
 # open the file in read mode
@@ -115,52 +193,77 @@ def switch_tab(notebook, tab_index):
     parent_tab.select(tab_index)
 
 def research1():
-    entry.delete(0,tk.END)
-    entry.insert(tk.END,full_history[0])
-    switch_tab(parent_tab,0)
-    search()
- 
+    try:
+        entry.delete(0,tk.END)
+        entry.insert(tk.END,full_history[0])
+        switch_tab(parent_tab,0)
+        search()
+    except IndexError:
+        pass
+
+
 def research2():
-    entry.delete(0,tk.END)
-    entry.insert(tk.END,full_history[1])
-    switch_tab(parent_tab,0)
-    search()
+    try:
+        entry.delete(0,tk.END)
+        entry.insert(tk.END,full_history[1])
+        switch_tab(parent_tab,0)
+        search()
+    except IndexError:
+        pass
 
 def research3():
-    entry.delete(0,tk.END)
-    entry.insert(tk.END,full_history[2])
-    switch_tab(parent_tab,0)
-    search()
+    try:
+        entry.delete(0,tk.END)
+        entry.insert(tk.END,full_history[2])
+        switch_tab(parent_tab,0)
+        search()
+    except IndexError:
+        pass
 
 def research4():
-    entry.delete(0,tk.END)
-    entry.insert(tk.END,full_history[3])
-    switch_tab(parent_tab,0)
-    search()
+    try:
+        entry.delete(0,tk.END)
+        entry.insert(tk.END,full_history[3])
+        switch_tab(parent_tab,0)
+        search()
+    except IndexError:
+        pass
 
 def research5():
-    entry.delete(0,tk.END)
-    entry.insert(tk.END,full_history[4])
-    switch_tab(parent_tab,0)
-    search()
+    try:
+        entry.delete(0,tk.END)
+        entry.insert(tk.END,full_history[4])
+        switch_tab(parent_tab,0)
+        search()
+    except IndexError:
+        pass
 
 def research6():
-    entry.delete(0,tk.END)
-    entry.insert(tk.END,full_history[5])
-    switch_tab(parent_tab,0)
-    search()
+    try:
+        entry.delete(0,tk.END)
+        entry.insert(tk.END,full_history[5])
+        switch_tab(parent_tab,0)
+        search()
+    except IndexError:
+        pass
 
 def research7():
-    entry.delete(0,tk.END)
-    entry.insert(tk.END,full_history[6])
-    switch_tab(parent_tab,0)
-    search()
+    try:
+        entry.delete(0,tk.END)
+        entry.insert(tk.END,full_history[6])
+        switch_tab(parent_tab,0)
+        search()
+    except IndexError:
+        pass
 
 def research8():
-    entry.delete(0,tk.END)
-    entry.insert(tk.END,full_history[7])
-    switch_tab(parent_tab,0)
-    search()
+    try:
+        entry.delete(0,tk.END)
+        entry.insert(tk.END,full_history[7])
+        switch_tab(parent_tab,0)
+        search()
+    except IndexError:
+        pass
 
 first_word=tk.Button(recent_box,text="" ,command=research1,bg="lightgrey", font=("Ariel",15))
 first_word.pack (side="top",fill="x")
@@ -206,10 +309,12 @@ def validating():
   
 validating()
 
+
 def search():
     def search_synthesis():
+        
         current_time=time.ctime()
-        loading.config(text="Loading....↻")
+       
         # getting the word from the entry using the get(), changing it to lowercase and also stripping it of any spaces
         word = entry.get().lower().strip().replace(' ', '')
 
@@ -230,8 +335,10 @@ def search():
             return  # Exit the function if the word is empty
 
         try:
+            spinner.pack()
+            
             word = entry.get().lower().strip()
-            meaning_box.config(state="normal")
+            
             # creating a dictionary object
             dictionary = PyDictionary()
 
@@ -248,20 +355,16 @@ def search():
             preview.config(state="disabled")
             
             if meanings:
+                
                 full_history.append(word)
                 search_time.append(current_time)
                 recent_box.config(state="disabled")
-                file = open("documents/time.txt", "a")
-                file.write(f"{current_time}\n")
-                file.close()
-                file = open("documents/words.txt", "a")
-                file.write(f"{word}\n")
-                file.close()
+                save_data()  
                 validating()
-                
+                meaning_box.config(state="normal")
                 # Clearing the content in the Text widget
                 meaning_box.delete('1.0', tk.END)
-                
+
                 # Inserting content (meanings) in the Text widget
                 for pos, meaning in enumerate(meanings, start=1):
                     meaning_box.insert(tk.END, f"{pos}. {meaning.capitalize()}:\n")
@@ -270,9 +373,12 @@ def search():
                 # enabling the audio button to normal state
                 read_button.config(state=tk.NORMAL)
                 meaning_box.config(state="disabled")
-                loading.config(text="") 
+                spinner.pack_forget()
+               
                 return
             else:
+
+
                 # checking for a possible word and returning it to the user
                 corrected_word = TextBlob(word).correct()
                 correct_meaning=PyDictionary.meaning(corrected_word) 
@@ -281,16 +387,17 @@ def search():
 
                 if correct_meaning:
                     if askyesno(title='Error', message=f'"{word}" was not found in the dictionary!. Do you mean "{corrected_word}"?'):  
-                        loading.config(text="")
+                       
                         entry.delete(0,tk.END)
                         entry.insert(tk.END,corrected_word)
                         search()
+                        spinner.pack_forget()
                     return
                 
 
                 # if there isnt anyword ahow error
                 else:
-                    loading.config(text="")
+                    spinner.pack_forget()
                     if ConnectionError:
                         showerror(title='Error', message='There is a problem with your internet connection! Please check it and then try again.')
                         return
@@ -342,7 +449,7 @@ def speak():
 
             # initializing the pyttsx3 object
             engine = pyttsx3.init()
-
+            spinner.pack()
 
             # gets the speaking rate
             rate = engine.getProperty('rate')
@@ -374,10 +481,12 @@ def speak():
                         engine.say(part_of_speech)
                         for meaning in meaning_list:
                             engine.say(meaning)
+                    spinner.pack_forget()
             else:
-                loading.config(text="Reading🔊")
+               
                 engine.say("No meanings found for the word.")
-                loading.config(text="")
+                spinner.pack_forget()
+              
 
 
             # this function processes the voice 
@@ -385,13 +494,15 @@ def speak():
                 
             if engine._inLoop:
                  engine.endLoop()
-                 loading.config(text="")
+                 spinner.pack_forget()
+               
 
             # this function processes the voice 
             else:
-                loading.config(text="Reading🔊")
+               
                 engine.runAndWait()
-                loading.config(text="")
+                spinner.pack_forget()
+               
         
     # Create a new thread for speech synthesis
     speech_thread = threading.Thread(target=perform_speech_synthesis)
@@ -566,13 +677,8 @@ def clear_history():
     window.bell()
     if askyesno(title="Clear History", message=f"Are you sure you want to clear history?\n All data erased will be lost!!"):
         full_history.clear()
-        file = open("documents/words.txt", "w")
-        file.__del__()
-        file.close()   
         search_time.clear()
-        file = open("documents/time.txt", "w")
-        file.__del__()
-        file.close() 
+        save_data()
         first_word.config(text="")
         second_word.config(text="")
         third_word.config(text="")
