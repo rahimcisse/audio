@@ -440,6 +440,7 @@ def speak():
     
     # Define a function to perform speech synthesis
     def perform_speech_synthesis():
+            
             # getting the word from the entry
             word = entry.get().strip()
 
@@ -495,14 +496,15 @@ def speak():
             if engine._inLoop:
                  engine.endLoop()
                  spinner.pack_forget()
+                
                
 
             # this function processes the voice 
             else:
-               
+                loading.config(text="Reading🔊")
                 engine.runAndWait()
                 spinner.pack_forget()
-               
+                loading.config(text="")
         
     # Create a new thread for speech synthesis
     speech_thread = threading.Thread(target=perform_speech_synthesis)
